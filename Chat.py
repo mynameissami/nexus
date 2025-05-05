@@ -3,6 +3,7 @@ import json
 from colorama import Fore, Back, Style
 
 class Nexus():
+
     def __init__(self, user_name=None):
         self.user_name = user_name
         
@@ -25,7 +26,11 @@ class Nexus():
         elif re.search(r'(?i)\b(tell\sme\sthe\sdate|tell\sthe\sdate|what\sis\sthe\sdate\stoday|what\sis\sthe\sdate)\b', user_input):
             nexus = Nexus()
             return nexus.date()
-
+        
+        elif re.search(r'\bquestion\b', user_input, re.IGNORECASE):
+            nexus = Nexus()
+            nexus.ask_a_question()
+            return None
         elif re.search(r'\bhow\b.*\bare\b.*\byou\b', user_input):
             return responses.get("how are you", responses["default"])
         
@@ -37,10 +42,44 @@ class Nexus():
         
         else:
             return responses["default"]
+
     def date(self):
         import datetime
         x = datetime.datetime.now()
         print(x.date())
+
+    def ask_a_question(self):
+        questions = self.questions_load_json("questions.json")
+        question = self.ask_random_question(questions)
+        self.ask_random_question(question)
+        answer = self.get_answer(question)
+
+        user_input = input(question["question"] + "\n")
+        while user_input != "back":
+            if user_input == answer:
+                print("Correct")
+                break
+            else:
+                print(f"Wrong, the correct answer is: {answer}")
+            Nexus.ask_random_question(self, questions)
+
+    def questions_load_json(self,file_path):
+        with open(file_path, 'r') as f:
+            questions = json.load(f)
+        return questions
+    
+    def ask_random_question(self, questions):
+        import random
+        return random.choice(questions['questions'])
+    
+    def get_answer(self, question):
+        return question["answer"]
+    
+
+    
+ 
+
+
     def dictionary_chat(self, user_name):
         
          def read_dictionary(self,file_path):
